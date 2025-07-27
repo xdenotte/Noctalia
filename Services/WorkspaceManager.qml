@@ -50,10 +50,23 @@ Singleton {
 
     // Initialize Hyprland integration
     function initHyprland() {
-        try {            
+        try {
+            // Initial refresh to get workspaces
             Hyprland.refreshWorkspaces();
-            hlWorkspaces = Hyprland.workspaces.values;
+            
+            // Update with current workspaces
+            hlWorkspaces = Hyprland.workspaces.values || [];
             updateHyprlandWorkspaces();
+            
+            // Set up a timer to check again after a short delay
+            const timer = Qt.createQmlObject('import QtQuick 2.15; Timer { interval: 500; running: true; repeat: false }', 
+                                          root, "InitialWorkspaceTimer");
+            timer.triggered.connect(function() {
+                hlWorkspaces = Hyprland.workspaces.values || [];
+                updateHyprlandWorkspaces();
+                timer.destroy();
+            });
+            
             return true;
         } catch (e) {
             console.error("Error initializing Hyprland:", e);
@@ -80,24 +93,35 @@ Singleton {
         }
     }
 
+
+
     function updateHyprlandWorkspaces() {
         workspaces.clear();
-        try {            
+        
+        try {
+            if (!hlWorkspaces || hlWorkspaces.length === 0) {
+                return;
+            }
+            
             for (let i = 0; i < hlWorkspaces.length; i++) {
                 const ws = hlWorkspaces[i];
+                if (!ws) continue;
+                
                 workspaces.append({
                     id: i,
-                    idx: ws.id,
-                    name: ws.name || "",
+                    idx: ws.id || i,
+                    name: ws.name || String(i + 1),
                     output: ws.monitor?.name || "",
                     isActive: ws.active === true,
                     isFocused: ws.focused === true,
-                    isUrgent: ws.urgent === true
+                    isUrgent: ws.urgent === true,
+                    isOccupied: true  // Always show as occupied if it exists
                 });
             }
+            
             workspacesChanged();
         } catch (e) {
-            console.error("Error updating Hyprland workspaces:", e);
+            console.error("Error updating workspaces:", e);
         }
     }
 
