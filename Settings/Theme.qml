@@ -108,4 +108,3 @@ Singleton {
     property int fontSizeSmall: 14               // Small text like clock, labels
     property int fontSizeCaption: 12             // Captions and fine print
 }
-

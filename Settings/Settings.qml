@@ -28,7 +28,9 @@ Singleton {
             reload()
         }
         onLoaded: function() {
-            WallpaperManager.setCurrentWallpaper(settings.currentWallpaper, true);
+            Qt.callLater(function () {
+                WallpaperManager.setCurrentWallpaper(settings.currentWallpaper, true);
+            })
         }
         onLoadFailed: function(error) {
             settingAdapter = {}
@@ -44,6 +46,7 @@ Singleton {
             property string videoPath: "~/Videos/"
             property bool showActiveWindowIcon: false
             property bool showSystemInfoInBar: false
+            property bool showCorners: true
             property bool showMediaInBar: false
             property bool useSWWW: false
             property bool randomWallpaper: false
@@ -57,6 +60,7 @@ Singleton {
             property bool reverseDayMonth: false
             property bool use12HourClock: false
             property bool dimPanels: true
+            property var pinnedExecs: [] // Added for AppLauncher pinned apps
         }
     }
 
